@@ -1,0 +1,1 @@
+FLASK_APP=50mkw.py
