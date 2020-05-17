@@ -82,7 +82,7 @@ class LrAdminuser(db.Model):
     pwd = Column(String(50), nullable=False, comment='MD5密码')
     qx = Column(TINYINT(4), nullable=False, server_default=text("'5'"), comment='权限 4超级管理员 5普通管理员')
     addtime = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='创建日期')
-    _del = Column('del', TINYINT(2), nullable=False, server_default=text("'0'"), comment='状态')
+    status = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='状态')
 
 
 class LrAttribute(db.Model):
@@ -265,10 +265,10 @@ class LrOrder(db.Model):
     price = Column(DECIMAL(9, 2), nullable=False, server_default=text("'0.00'"), comment='价格')
     amount = Column(DECIMAL(9, 2), server_default=text("'0.00'"), comment='优惠后价格')
     addtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"), comment='购买时间')
-    _del = Column('del', TINYINT(2), nullable=False, server_default=text("'0'"), comment='删除状态')
+    status = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='删除状态')
     type = Column(Enum('weixin', 'alipay', 'cash'), server_default=text("'weixin'"), comment='支付方式')
     price_h = Column(DECIMAL(9, 2), nullable=False, server_default=text("'0.00'"), comment='真实支付金额')
-    status = Column(TINYINT(2), nullable=False, server_default=text("'10'"), comment='订单状态码：0,已取消; 10,待付款; 20,待发货; 30,待收货; 40,待评价; 50,交易完成; 51,交易关闭')
+    state = Column(TINYINT(2), nullable=False, server_default=text("'10'"), comment='订单状态码：0,已取消; 10,待付款; 20,待发货; 30,待收货; 40,待评价; 50,交易完成; 51,交易关闭')
     vid = Column(INTEGER(11), server_default=text("'0'"), comment='优惠券ID')
     receiver = Column(String(15), nullable=False, comment='收货人')
     tel = Column(CHAR(15), nullable=False, comment='联系方式')
@@ -343,7 +343,7 @@ class LrProduct(db.Model):
     shiyong = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='购买数')
     num = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='数量')
     type = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='是否推荐 1推荐  0不推荐')
-    _del = Column('del', TINYINT(2), nullable=False, server_default=text("'0'"), comment='删除状态')
+    status = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='删除状态')
     del_time = Column(INTEGER(10), server_default=text("'0'"), comment='删除时间')
     pro_buff = Column(String(255), comment='产品属性')
     cid = Column(INTEGER(11), nullable=False, comment='分类id')
@@ -524,7 +524,7 @@ class LrUser(db.Model):
     qq_id = Column(String(20), nullable=False, server_default=text("'0'"), comment='qq')
     email = Column(String(50), comment='邮箱')
     sex = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='性别')
-    _del = Column('del', TINYINT(2), nullable=False, server_default=text("'0'"), comment='状态')
+    status = Column(TINYINT(2), nullable=False, server_default=text("'0'"), comment='状态')
     openid = Column(String(50), nullable=False, comment='授权ID')
     source = Column(String(10), nullable=False, comment='第三方平台(微信，QQ)')
 
@@ -563,7 +563,7 @@ class LrVoucher(db.Model):
     receive_num = Column(INTEGER(11), server_default=text("'0'"), comment='领取数量')
     addtime = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='添加时间')
     type = Column(TINYINT(1), nullable=False, server_default=text("'1'"), comment='优惠券类型')
-    _del = Column('del', TINYINT(1), server_default=text("'0'"), comment='删除状态')
+    status = Column(TINYINT(1), server_default=text("'0'"), comment='删除状态')
     proid = Column(Text, comment='产品ID')
 
 

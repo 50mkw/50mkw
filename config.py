@@ -1,3 +1,4 @@
+#-*- coding: UTF-8 -*-
 import os
 import configparser
 from datetime import timedelta
@@ -25,7 +26,7 @@ class Config(object):
     # 数据库的配置信息
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'mysql+pymysql://root:Happy@001@127.0.0.1:3306/50mkw'
     SQLALCHEMY_BINDS = {
-        '50mkw': 'mysql+pymysql://root:Happy@001@127.0.0.1:3306/50mkw',
+        '50mkw': 'mysql+pymysql://root:Happy@001@47.105.84.136:3306/50mkw',
         'migration': 'mysql+pymysql://root:Happy@001@127.0.0.1:3306/so1',
         'movie': 'mysql+pymysql://root:Happy@001@127.0.0.1:3306/movie'
     }
