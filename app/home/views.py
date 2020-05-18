@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 from . import home
-from flask import request, jsonify
+from flask import request, jsonify, make_response
 from .models import LrUser
 from datatables import ColumnDT
 
