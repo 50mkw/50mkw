@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from app import db
 
 
-
 Base = declarative_base()
 metadata = Base.metadata
 
@@ -177,6 +176,12 @@ class LrGuanggao(db.Model):
     type = Column(Enum('product', 'news', 'partner', 'index'), server_default=text("'index'"), comment='广告类型')
     action = Column(String(255), nullable=False, comment='链接值')
     position = Column(TINYINT(2), server_default=text("'1'"), comment='广告位置 1首页轮播')
+
+    def to_json(self):
+        dict = self.__dict__
+        if "_sa_instance_state" in dict:
+            del dict["_sa_instance_state"]
+        return dict
 
 
 class LrGuige(db.Model):
