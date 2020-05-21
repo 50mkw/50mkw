@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, make_response, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from config import Config

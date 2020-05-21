@@ -104,6 +104,35 @@ def login_authlogin():
     return jsonify({'status':0, 'err':'授权失败!'})
 
 
+@api.route("/Category/index", methods=['GET', 'POST'])
+def category_index():
+    category_rows = LrCategory.query.with_entities(LrCategory.id, LrCategory.tid, LrCategory.name, LrCategory.concent, LrCategory.bz_1, LrCategory.bz_2) \
+        .filter_by(tid=1).all()
+    category_list = []
+    for row in category_rows:
+        category_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    son_category_rows = LrCategory.query.with_entities(LrCategory.id, LrCategory.name, LrCategory.bz_1) \
+        .filter_by(tid=category_rows[0].id).all()
+    son_category_list = []
+    for row in son_category_rows:
+        son_category_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    product_rows = len(LrCategory.query.all())
+    return jsonify({'status': 1, 'list': category_list, 'catList':son_category_list, 'goodsCount':product_rows})
+
+
+@api.route("/Category/getcat", methods=['GET', 'POST'])
+def category_getcat():
+    catid = request.form['cat_id']
+    if not catid:
+        return jsonify({'status':0, 'err':'没有找到产品数据.'})
+    category_rows = LrCategory.query.with_entities(LrCategory.id, LrCategory.name, LrCategory.bz_1) \
+        .filter_by(tid=catid).all()
+    category_list = []
+    for row in category_rows:
+        category_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    return jsonify({'status':1, 'catList':category_list})
+
+
 @api.route("/getimage/<path:image_path>")
 def show_image(image_path):
     with open(basedir + "/static/img/" + image_path, 'rb') as f:
