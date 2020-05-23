@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from . import api
 from flask import request, jsonify, make_response, Response
-from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct
+from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct, LrBrand, LrAttribute, LrGuige, LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity
 from datatables import ColumnDT
 import requests
 from datetime import datetime
@@ -131,6 +131,277 @@ def category_getcat():
     for row in category_rows:
         category_list.append(dict((c, getattr(row, c)) for c in row._fields))
     return jsonify({'status':1, 'catList':category_list})
+
+
+@api.route("/Product/index", methods=['GET', 'POST'])
+def product_index():
+    pro_id = request.form['pro_id']
+    if not pro_id:
+        return jsonify({'status':0, 'err':'商品不存在或已下架！'})
+    product_row = LrProduct.query.filter_by(id=pro_id, status=0, is_down=0).first()
+    if not product_row:
+        return jsonify({'status':0, 'err':'商品不存在或已下架！'})
+    columns = LrProduct.__table__.columns.keys()
+    product = dict((c, getattr(product_row, c)) for c in columns)
+
+    product['brand'] = LrBrand.query.filter_by(id=product_row.brand_id).first().name
+    product['cat_name'] = LrCategory.query.filter_by(id=product_row.cid).first().name
+    img = filter(None,product_row.photo_string.split(','))
+    img_list = []
+    for tmp in img:
+        img_list.append(tmp)
+    if not img_list:
+        img_list.append(product_row.photo_d)
+    product['img_arr'] = img_list
+
+    commodityAttr = []
+    attrValueList = []
+
+    if product_row.pro_buff:
+        pro_buff = filter(None, product_row.pro_buff.split(','))
+        for val in pro_buff:
+            attr_name = LrAttribute.query.filter_by(id=val).first().attr_name
+            guigerows = LrGuige.query.filter_by(attr_id=val, pid=pro_id).with_entities(LrGuige.id, LrGuige.name).all()
+            guigelist = []
+            for row in guigerows:
+                guigelist.append(dict((c, getattr(row, c)) for c in row._fields))
+            ggss = []
+            gg = []
+            for val in guigerows:
+                gg.append({'attrKey':attr_name, 'attrValue':val.name})
+                ggss.append(val.name)
+            commodityAttr.append({'attrValueList':gg})
+            attrValueList.append({'attrKey':attr_name,'attrValueList':ggss})
+    content = str.replace(product_row.content, 'xxx', '/minipetmrschool/Data/')
+    product['content'] = 'test'
+
+    product_rows = LrProduct.query.limit(10)
+    columns = LrProduct.__table__.columns.keys()
+    product_list = []
+    for row in product_rows:
+        product_list.append(dict((c, getattr(row, c)) for c in columns))
+
+    return jsonify({'status': 1, 'pro':product, 'commodityAttr':commodityAttr, 'attrValueList':attrValueList, 'newGoods':product_list})
+
+
+@api.route("/Shopping/index", methods=['GET', 'POST'])
+def shopping_index():
+    user_id = request.form['user_id']
+    if not user_id:
+        return jsonify({'status':0})
+    cart_rows = LrShoppingChar.query.with_entities(LrShoppingChar.id, LrShoppingChar.uid, LrShoppingChar.pid, LrShoppingChar.price,
+                                                   LrShoppingChar.num) \
+        .filter_by(uid=user_id).all()
+    cart_list = []
+    for row in cart_rows:
+        pro_info = LrProduct.query.filter_by(id=row.pid).with_entities(LrProduct.name, LrProduct.photo_x).first()
+        row_dic = dict((c, getattr(row, c)) for c in row._fields)
+        row_dic.update({'pro_name': pro_info.name, 'photo_x': pro_info.photo_x})
+        cart_list.append(row_dic)
+    return jsonify({'status': 1, 'cart':cart_list})
+
+
+@api.route("/User/getorder", methods=['GET', 'POST'])
+def user_getorder():
+    uid = request.form['userId']
+    if not uid:
+        return jsonify({'status':0, 'err':'非法操作.'})
+    order = {}
+    order['pay_num'] = len(LrOrder.query.filter_by(uid=uid, state=10, status=0).all())
+    order['rec_num'] = len(LrOrder.query.filter_by(uid=uid, state=30, status=0, back=0).all())
+    order['finish_num'] = len(LrOrder.query.filter(LrOrder.uid==uid, LrOrder.state>30, LrOrder.status==0, LrOrder.back==0).all())
+    order['refund_num'] = len(LrOrder.query.filter(LrOrder.back>0).all())
+    return jsonify({'status': 1, 'orderInfo': order})
+
+
+@api.route("/Payment/buy_cart", methods=['GET', 'POST'])
+def payment_buy_cart():
+    uid = request.form['uid']
+    cart_id = request.form['cart_id']
+    if not uid:
+        return jsonify({'status': 0, 'err': '登录状态异常.'})
+    if not cart_id:
+        return jsonify({'status': 0, 'err': '网络异常.'})
+    address = LrAddress.query.filter_by(uid=uid).order_by(LrAddress.is_default.desc(), LrAddress.id.desc()).first()
+    pro = []
+    price = 0
+    cart_id_list = filter(None, cart_id.split(','))
+    for val in cart_id_list:
+        check_cart = LrShoppingChar.query.filter_by(id=val).first().id
+        if not check_cart:
+            return jsonify({'status': 0, 'err': '非法操作.'})
+
+        cart = LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid) \
+            .outerjoin(LrShangchang, LrShangchang.id == LrShoppingChar.shop_id) \
+            .filter(LrShoppingChar.uid == uid, LrShoppingChar.id == val) \
+            .with_entities(LrProduct.num,
+                           LrShoppingChar.id,
+                           LrShoppingChar.pid,
+                           LrShangchang.name,
+                           LrProduct.name,
+                           LrProduct.shop_id,
+                           LrProduct.photo_x,
+                           LrProduct.price_yh,
+                           LrShoppingChar.num,
+                           LrShoppingChar.buff,
+                           LrShoppingChar.price).first()
+        pro_tmp = dict(zip(['pnum','id','pid','sname','name','shop_id','photo_x','price_yh','num','buff','price'], list(cart)))
+        if not pro_tmp['buff']:
+            pro_tmp['zprice'] = pro_tmp['price'] * pro_tmp['num']
+        else:
+            pro_tmp['price'] = pro_tmp['price_yh']
+            pro_tmp['zprice'] = pro_tmp['price'] * pro_tmp['num']
+        price = price + pro_tmp['zprice']
+        pro.append(pro_tmp)
+        yunfei = LrPost.query.filter_by(pid=cart.shop_id).first()
+        columns = LrPost.__table__.columns.keys()
+        yunfei = dict((c, getattr(yunfei, c)) for c in columns)
+    if yunfei:
+        if yunfei['price_max'] > 0 and yunfei['price_max'] <= price:
+            yunfei['price'] = 0
+    if not address:
+        addemt = 1
+    else:
+        addemt = 0
+    columns = LrAddress.__table__.columns.keys()
+    address_dict = dict((c, getattr(address, c)) for c in columns)
+
+    return jsonify({'status':1, 'vou':'', 'price':price, 'pro':pro, 'adds':address_dict, 'addemt':addemt, 'yun':yunfei})
+
+
+@api.route("/Address/index", methods=['GET', 'POST'])
+def address_index():
+    user_id = request.form['user_id']
+    if not user_id:
+        return jsonify({'status': 0, 'err': '网络异常.'})
+    addrows = LrAddress.query.filter_by(uid=user_id).order_by(LrAddress.is_default.desc(), LrAddress.id.desc()).all()
+    columns = LrAddress.__table__.columns.keys()
+    addlist = []
+    for row in addrows:
+        addlist.append(dict((c, getattr(row, c)) for c in columns))
+    return jsonify({'status': 1, 'adds': addlist})
+
+
+@api.route("/Address/get_province", methods=['GET', 'POST'])
+def address_get_province():
+    china_city_rows = LrChinaCity.query.filter_by(tid=0).with_entities(LrChinaCity.id,LrChinaCity.name).all()
+    china_city_list = []
+    for row in china_city_rows:
+        china_city_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    return jsonify({'status': 1, 'list': china_city_list})
+
+
+@api.route("/Address/get_city", methods=['GET', 'POST'])
+def address_get_city():
+    sheng = request.form['sheng']
+    if not sheng:
+        return jsonify({'status': 0, 'err': '请选择省份.'})
+    province_rows = LrChinaCity.query.filter_by(tid=0).with_entities(LrChinaCity.id,LrChinaCity.name).all()
+    city_rows = LrChinaCity.query.filter_by(tid=province_rows[int(sheng)-1].id).with_entities(LrChinaCity.id, LrChinaCity.name).all()
+    city_list = []
+    for row in city_rows:
+        city_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    return jsonify({'status': 1, 'city_list': city_list, 'sheng':province_rows[int(sheng)-1].id})
+
+
+@api.route("/Address/get_area", methods=['GET', 'POST'])
+def address_get_area():
+    city = request.form['city']
+    sheng = request.form['sheng']
+    if not city:
+        return jsonify({'status': 0, 'err': '请选择城市.'})
+    city_rows = LrChinaCity.query.filter_by(tid=sheng).with_entities(LrChinaCity.id, LrChinaCity.name).all()
+    area_rows = LrChinaCity.query.filter_by(tid=city_rows[int(city) - 1].id).with_entities(LrChinaCity.id, LrChinaCity.name).all()
+    area_list = []
+    for row in area_rows:
+        area_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    return jsonify({'status': 1, 'area_list': area_list, 'city': city_rows[int(city) - 1].id})
+
+
+@api.route("/Address/get_code", methods=['GET', 'POST'])
+def address_get_code():
+    quyu = request.form['quyu']
+    city = request.form['city']
+    area_rows = LrChinaCity.query.filter_by(tid=city).with_entities(LrChinaCity.id, LrChinaCity.name).all()
+    code_row = LrChinaCity.query.filter_by(id=area_rows[int(quyu) - 1].id).with_entities(LrChinaCity.code).first()
+    area_list = []
+    for row in area_rows:
+        area_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    return jsonify({'status': 1, 'code': code_row.code, 'area': area_rows[int(quyu) - 1].id})
+
+
+@api.route("/Address/add_adds", methods=['GET', 'POST'])
+def address_add_adds():
+    user_id = request.form['user_id']
+    if not user_id:
+        return jsonify({'status': 0, 'err': '网络异常.'})
+    name = request.form['receiver']
+    tel = request.form['tel']
+    sheng = request.form['sheng']
+    city = request.form['city']
+    quyu = request.form['quyu']
+    address = request.form['adds']
+    code = request.form['code']
+    uid = user_id
+    if not name or not tel or not address:
+        return jsonify({'status': 0, 'err': '请先完善信息后再提交.'})
+    if not sheng or not city or not quyu:
+        return jsonify({'status': 0, 'err': '请选择省市区.'})
+    #{user_id:uid,receiver:rec,tel:tel,sheng:sheng,city:city,quyu:quyu,adds:address,code:code}
+    check_id = LrAddress.query.filter_by(name=name, tel=tel, sheng=sheng, city=city, quyu=quyu, address=address, code=code, uid=uid).first()
+    if check_id:
+        return jsonify({'status': 0, 'err': '该地址已经添加了.'})
+    province_name = LrChinaCity.query.filter_by(id=sheng).first().name
+    city_name = LrChinaCity.query.filter_by(id=sheng).first().name
+    quyu_name = LrChinaCity.query.filter_by(id=sheng).first().name
+    address_xq = province_name + ' ' + city_name + ' ' + quyu_name + ' ' + address
+
+    address_new = LrAddress(
+        name=name,
+        tel=tel,
+        sheng=sheng,
+        city=city,
+        quyu=quyu,
+        address=address,
+        address_xq = address_xq,
+        code = code,
+        uid = uid
+    )
+    db.session.add(address_new)
+    db.session.commit()
+    arr = {}
+    if address_new.id:
+        arr['addr_id'] = address_new.id
+        arr['rec'] = address_new.name
+        arr['tel'] = address_new.tel
+        arr['addr_xq'] = address_new.address_xq
+        return jsonify({'status': 1, 'add_arr': arr})
+    else:
+        return jsonify({'status': 0, 'err': '操作失败.'})
+
+
+@api.route("/Address/set_default", methods=['GET', 'POST'])
+def address_set_default():
+    uid = request.form['uid']
+    if not uid:
+        return jsonify({'status': 0, 'err': '登录状态异常.'})
+    addr_id = request.form['addr_id']
+    if not addr_id:
+        return jsonify({'status': 0, 'err': '地址信息错误.'})
+    check = LrAddress.query.filter_by(uid=uid, is_default=1).first()
+    if check:
+        try:
+            check.is_default = 0
+            db.session.commit()
+        except Exception as e:
+            return jsonify({'status': 0, 'err': '设置失败.'})
+    address = LrAddress.query.filter_by(id=addr_id, uid=uid).first()
+    try:
+        address.is_default = 1
+        db.session.commit()
+    except Exception as e:
+        return jsonify({'status': 0, 'err': '设置失败.'})
+    return jsonify({'status': 1})
 
 
 @api.route("/getimage/<path:image_path>")

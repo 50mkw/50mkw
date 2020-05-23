@@ -10,7 +10,7 @@ Base = declarative_base()
 metadata = Base.metadata
 
 
-class LrAddres(db.Model):
+class LrAddress(db.Model):
     __tablename__ = 'lr_address'
     __table_args__ = {'schema': '50mkw'}
     __bind_key__ = '50mkw'
