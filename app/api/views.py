@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from . import api
 from flask import request, jsonify, make_response, Response
-from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct, LrBrand, LrAttribute, LrGuige, LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity
+from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct, LrBrand, LrAttribute, LrGuige, \
+    LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity, LrOrderProduct, LrUserVoucher
 from datatables import ColumnDT
 import requests
 from datetime import datetime
-import time
+import time, random, hashlib
 from app import db, basedir
 
 
@@ -227,9 +228,10 @@ def payment_buy_cart():
     price = 0
     cart_id_list = filter(None, cart_id.split(','))
     for val in cart_id_list:
-        check_cart = LrShoppingChar.query.filter_by(id=val).first().id
-        if not check_cart:
+        check_cart_row = LrShoppingChar.query.filter_by(id=val).first()
+        if not check_cart_row:
             return jsonify({'status': 0, 'err': '非法操作.'})
+        #check_cart = check_cart_row.id
 
         cart = LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid) \
             .outerjoin(LrShangchang, LrShangchang.id == LrShoppingChar.shop_id) \
@@ -352,8 +354,8 @@ def address_add_adds():
     if check_id:
         return jsonify({'status': 0, 'err': '该地址已经添加了.'})
     province_name = LrChinaCity.query.filter_by(id=sheng).first().name
-    city_name = LrChinaCity.query.filter_by(id=sheng).first().name
-    quyu_name = LrChinaCity.query.filter_by(id=sheng).first().name
+    city_name = LrChinaCity.query.filter_by(id=city).first().name
+    quyu_name = LrChinaCity.query.filter_by(id=quyu).first().name
     address_xq = province_name + ' ' + city_name + ' ' + quyu_name + ' ' + address
 
     address_new = LrAddress(
@@ -404,9 +406,172 @@ def address_set_default():
     return jsonify({'status': 1})
 
 
+@api.route("/Payment/payment", methods=['GET', 'POST'])
+def payment_payment():
+    uid = request.form['uid']
+    if not uid:
+        return jsonify({'status': 0, 'err': '登录状态异常.'})
+    cart_id = request.form['cart_id']
+    if not cart_id:
+        return jsonify({'status': 0, 'err': '数据异常.'})
+    shop = []
+    cart_id_filter = filter(None, cart_id.split(','))
+    cart_id_list = []
+    for tmp in cart_id_filter:
+        cart_id_list.append(tmp)
+    num = 0
+    for val in cart_id_list:
+        cart = LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid) \
+            .filter(LrShoppingChar.uid == uid, LrShoppingChar.id == val) \
+            .with_entities(LrShoppingChar.pid,
+                           LrShoppingChar.num,
+                           LrShoppingChar.shop_id,
+                           LrShoppingChar.buff,
+                           LrShoppingChar.price,
+                           LrProduct.price_yh,).first()
+        pro_tmp = dict(zip(['pid','num','shop_id','buff','price','price_yh'], list(cart)))
+        num = num + pro_tmp['num']
+        if not pro_tmp['buff']:
+            ozprice = pro_tmp['price'] * pro_tmp['num']
+        else:
+            pro_tmp['price'] = pro_tmp['price_yh']
+            ozprice = pro_tmp['price'] * pro_tmp['num']
+        shop.append(pro_tmp)
+
+    yunfei = request.form['yunfei']
+    if yunfei:
+        yunPrice = LrPost.query.filter_by(id=yunfei).first()
+        post = yunPrice.id
+        price = ozprice + yunPrice.price
+    else:
+        post = 0
+        price = ozprice
+    amount = price
+    vid = request.form['vid']
+    if int(vid):
+        vouinfo = LrUserVoucher.query.filter_by(status=1, uid=uid, vid=vid).first()
+        chk = LrOrder.query.filter(LrOrder.uid==uid, LrOrder.vid==vid, LrOrder.status>0).all()
+        if not vouinfo or chk:
+            return jsonify({'status': 0, 'err': '此优惠券不可用，请选择其他.'})
+        if vouinfo.end_time < time.time():
+            return jsonify({'status': 0, 'err': '优惠券已过期了.'})
+        if vouinfo.start_time > time.time():
+            return jsonify({'status': 0, 'err': '优惠券还未生效.'})
+        amount = price - vouinfo.amount
+    addtime = int(time.time())
+    status = 0
+    type = request.form['type']
+    state = 10
+    adds_id = request.form['aid']
+    if not adds_id:
+        return jsonify({'status': 0, 'err': '请选择收货地址.'})
+    adds_info = LrAddress.query.filter_by(id=adds_id).first()
+    receiver = adds_info.name
+    tel = adds_info.tel
+    address_xq = adds_info.address_xq
+    code = adds_info.code
+    product_num = num
+    remark = request.form['remark']
+    order_sn = build_order_no()
+
+    order = LrOrder(
+        order_sn=order_sn,
+        shop_id=shop[0]['shop_id'],
+        uid=uid,
+        price=price,
+        amount=amount,
+        addtime=addtime,
+        status=status,
+        type=type,
+        state=state,
+        vid=vid,
+        receiver=receiver,
+        tel=tel,
+        address_xq=address_xq,
+        code=code,
+        post=post,
+        remark=remark,
+        product_num=product_num,
+        post_remark=''
+    )
+    try:
+        db.session.add(order)
+        db.session.commit()
+        for val in cart_id_list:
+            cart = LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id == LrShoppingChar.pid) \
+                .filter(LrShoppingChar.uid == uid, LrShoppingChar.id == val) \
+                .with_entities(LrShoppingChar.pid,
+                               LrShoppingChar.num,
+                               LrShoppingChar.shop_id,
+                               LrShoppingChar.buff,
+                               LrShoppingChar.price,
+                               LrProduct.name,
+                               LrProduct.photo_x,
+                               LrProduct.price_yh,
+                               LrProduct.num).first()
+            pro_tmp = dict(zip(['pid', 'num', 'shop_id', 'buff', 'price', 'name', 'photo_x', 'price_yh', 'pnum'], list(cart)))
+            if not pro_tmp['buff']:
+                pro_tmp['price'] = pro_tmp['price_yh']
+            buff_text = ''
+            if pro_tmp['buff']:
+                buff_list = filter(None, pro_tmp['buff'].split(','))
+                if buff_list:
+                    for buff in buff_list:
+                        ggid = LrGuige.query.filter_by(id=buff).first()
+                        buff_text = buff_text + ggid.name + ' '
+            order_pro = LrOrderProduct(
+                pid=pro_tmp['pid'],
+                name=pro_tmp['name'],
+                order_id=order.id,
+                price=pro_tmp['price'],
+                photo_x=pro_tmp['photo_x'],
+                pro_buff=buff_text.strip(' '),
+                addtime=int(time.time()),
+                num=pro_tmp['num'],
+                pro_guige=''
+            )
+            try:
+                db.session.add(order_pro)
+                db.session.commit()
+            except Exception as e:
+                err_str = '下单 失败!' + e
+                return jsonify({'status': 0, 'err': err_str})
+            check_pro = LrProduct.query.filter_by(id=pro_tmp['pid'], status=0, is_down=0).first()
+
+            check_pro.num = check_pro.num - pro_tmp['num']
+            check_pro.shiyong = check_pro.shiyong + pro_tmp['num']
+            db.session.commit()
+
+            cart_row = LrShoppingChar.query.filter_by(uid=uid, id=val).first()
+            db.session.delete(cart_row)
+            db.session.commit()
+    except Exception as e:
+        return jsonify({'status': 0, 'err': e})
+    arr = {}
+    arr['order_id'] = order.id
+    arr['order_sn'] = order.order_sn
+    arr['pay_type'] = request.form['type']
+    return jsonify({'status': 1, 'arr': arr})
+
+
+@api.route("/Order/index", methods=['GET', 'POST'])
+def order_index():
+    uid = request.form['uid']
+    if not uid:
+        return jsonify({'status': 0, 'err': '登录状态异常.'})
+    pages = request.form['page']
+    if not pages:
+        pages = 0
+
+
 @api.route("/getimage/<path:image_path>")
 def show_image(image_path):
     with open(basedir + "/static/img/" + image_path, 'rb') as f:
         image = f.read()
     pic_url = Response(image, mimetype="image/jpeg")
     return pic_url
+
+
+def build_order_no():
+    random_str = '{0:%Y%m%d%H%M%S%f}'.format(datetime.now()) + ''.join([str(random.randint(1, 10)) for i in range(5)])
+    return hashlib.md5(random_str.encode('utf-8')).hexdigest()[8:-8]
