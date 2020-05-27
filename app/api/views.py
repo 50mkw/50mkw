@@ -2,8 +2,10 @@
 from . import api
 from flask import request, jsonify, make_response, Response
 from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct, LrBrand, LrAttribute, LrGuige, \
-    LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity, LrOrderProduct, LrUserVoucher
+    LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity, LrOrderProduct, LrUserVoucher, \
+    LrSearchRecord
 from datatables import ColumnDT
+from sqlalchemy import func, desc
 import requests
 from datetime import datetime
 import time, random, hashlib
@@ -181,8 +183,53 @@ def product_index():
     product_list = []
     for row in product_rows:
         product_list.append(dict((c, getattr(row, c)) for c in columns))
-
     return jsonify({'status': 1, 'pro':product, 'commodityAttr':commodityAttr, 'attrValueList':attrValueList, 'newGoods':product_list})
+
+
+@api.route("/Product/lists", methods=['GET', 'POST'])
+def product_lists():
+    id = request.form.get('cat_id', type=int, default=None)
+    brand_id = request.form.get('brand_id', type=int, default=None)
+    page = request.form.get('page', type=int, default=None)
+    ptype = request.form.get('ptype', type=str, default=None)
+    type = request.form.get('type', type=str, default=None)
+    keyword = request.form.get('keyword', type=str, default=None)
+
+    if type == 'ids':
+        order = LrProduct.id.desc()
+    elif type == 'sale':
+        order = LrProduct.shiyong.desc()
+    elif type == 'price':
+        order = LrProduct.price_yh.desc()
+    elif type == 'hot':
+        order = LrProduct.renqi.desc()
+    else:
+        order = LrProduct.addtime.desc()
+    product_row = LrProduct.query.filter_by(pro_type=1,status=0,is_down=0)
+    if id:
+        product_row = product_row.filter_by(cid=id)
+    if brand_id:
+        product_row = product_row.filter_by(brand_id=brand_id)
+    if keyword:
+        product_row = product_row.filter(LrProduct.name.ilike('%'+keyword+'%'))
+    if ptype and ptype == 'new':
+        product_row = product_row.filter_by(is_show=1)
+    elif ptype and ptype == 'hot':
+        product_row = product_row.filter_by(is_hot=1)
+    if ptype and ptype == 'zk':
+        product_row = product_row.filter_by(is_sale=1)
+    product_row = product_row.order_by(order).offset(page).limit(20).all()
+    product_list = []
+    columns = LrProduct.__table__.columns.keys()
+    for row in product_row:
+        product_list.append(dict((c, getattr(row, c)) for c in columns))
+    cat = LrCategory.query.filter_by(id=id).first()
+    cat_name = ''
+    cat_pic = ''
+    if cat:
+        cat_name = cat.name
+        cat_pic = cat.bz_2
+    return jsonify({'status':1, 'pro':product_list, 'cat_name':cat_name, 'cat_pic':cat_pic})
 
 
 @api.route("/Shopping/index", methods=['GET', 'POST'])
@@ -200,6 +247,84 @@ def shopping_index():
         row_dic.update({'pro_name': pro_info.name, 'photo_x': pro_info.photo_x})
         cart_list.append(row_dic)
     return jsonify({'status': 1, 'cart':cart_list})
+
+
+@api.route("/Shopping/add", methods=['GET', 'POST'])
+def shopping_add():
+    uid = request.form['uid']
+    if not uid:
+        return jsonify({'status':0,'err':'登录状态异常.'})
+    pid = request.form['pid']
+    num = request.form['num']
+    if not pid or not num:
+        return jsonify({'status':0,'err':'参数错误.'})
+    check = check_cart(pid)
+    if check['status'] == 0:
+        return jsonify({'status': 0, 'err': check['err']})
+    check_info = LrProduct.query.filter_by(id=pid, status=0, is_down=0).first()
+    num = int(num)
+    if check_info.num <= num:
+        return jsonify({'status': 0, 'err': '库存不足!'})
+    cart_info = LrShoppingChar.query.filter_by(pid=pid, uid=uid).first()
+    if cart_info:
+        if check_info.num <= cart_info.num + num:
+            return jsonify({'status': 0, 'err': '库存不足!'})
+        cart_info.num = cart_info.num + num
+        db.session.commit()
+        return jsonify({'status': 1, 'cart_id': cart_info.id})
+    else:
+        new_cart = LrShoppingChar(
+            pid=pid,
+            num=num,
+            addtime=int(time.time()),
+            uid=uid,
+            shop_id=check_info.shop_id,
+            type=check_info.pro_type,
+            price=check_info.price_yh,
+            buff=''
+        )
+        try:
+            db.session.add(new_cart)
+            db.session.commit()
+            return jsonify({'status': 1, 'cart_id': new_cart.id})
+        except Exception as e:
+            return jsonify({'status': 0, 'err': '加入失败.'})
+
+
+@api.route("/Shopping/up_cart", methods=['GET', 'POST'])
+def shopping_up_cart():
+    uid = request.form['user_id']
+    cart_id = request.form['cart_id']
+    num = request.form['num']
+    if not uid or not cart_id or not num:
+        return jsonify({'status':0,'err':'网络异常.'})
+    cart = LrShoppingChar.query.filter_by(id=cart_id).first()
+    if not cart:
+        return jsonify({'status': 0, 'err': '购物车信息错误!'})
+    check_info = LrProduct.query.filter_by(id=cart.pid, status=0, is_down=0).first()
+    num = int(num)
+    if check_info.num <= num:
+        return jsonify({'status': 0, 'err': '库存不足!'})
+    try:
+        cart.num = num
+        db.session.commit()
+        return jsonify({'status': 1, 'succ': '操作成功!'})
+    except Exception as e:
+        return jsonify({'status': 0, 'err': '操作失败.'})
+
+
+@api.route("/Shopping/delete", methods=['GET', 'POST'])
+def shopping_delete():
+    cart_id = request.form['cart_id']
+    cart = LrShoppingChar.query.filter_by(id=cart_id).first()
+    if not cart:
+        return jsonify({'status': 1})
+    try:
+        db.session.delete(cart)
+        db.session.commit()
+        return jsonify({'status': 1})
+    except Exception as e:
+        return jsonify({'status': 0})
 
 
 @api.route("/User/getorder", methods=['GET', 'POST'])
@@ -382,6 +507,30 @@ def address_add_adds():
         return jsonify({'status': 0, 'err': '操作失败.'})
 
 
+@api.route("/Address/del_adds", methods=['GET', 'POST'])
+def address_del_adds():
+    user_id = request.form['user_id']
+    if not user_id:
+        return jsonify({'status': 0, 'err': '登录状态异常.'})
+    id_arr = request.form['id_arr']
+    id_list_filter = filter(None, id_arr.split(','))
+    id_list = []
+    for tmp in id_list_filter:
+        id_list.append(tmp)
+    if id_list:
+        add_rows = LrAddress.query.filter(LrAddress.uid==user_id, LrAddress.id.in_(id_list)).all()
+        try:
+            # db.session.delete(add_rows)
+            for add_row in add_rows:
+                db.session.delete(add_row)
+            db.session.commit()
+            return jsonify({'status': 1})
+        except Exception as e:
+            return jsonify({'status': 0, 'err': '操作失败.'})
+    else:
+        return jsonify({'status': 0, 'err': '没有找到要删除的数据.'})
+
+
 @api.route("/Address/set_default", methods=['GET', 'POST'])
 def address_set_default():
     uid = request.form['uid']
@@ -562,6 +711,201 @@ def order_index():
     pages = request.form['page']
     if not pages:
         pages = 0
+    order_type = request.form['order_type']
+    status = 0
+    back = 0
+    state = 10
+    if order_type:
+        if order_type == 'pay':
+            state = 10
+        elif order_type == 'deliver':
+            state = 20
+        elif order_type == 'receive':
+            state = 30
+        elif order_type == 'evaluate':
+            state = 40
+        elif order_type == 'finish':
+            state = 50
+        else:
+            state = 10
+    count = len(LrOrder.query.filter_by(status=status, back=str(back), state=state, uid=uid).all())
+    eachpage = 7
+    order_status = {'0':'已取消', '10':'待付款', '20':'待发货', '30':'待收货', '40':'待评价', '50':'交易完成', '51':'交易关闭'}
+    order_row = LrOrder.query.filter_by(status=status, back=str(back), state=state, uid=uid)\
+        .with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.pay_sn, LrOrder.state, LrOrder.price, LrOrder.type, LrOrder.product_num)\
+        .offset(pages).limit(7).all()
+    order_list = []
+    for row in order_row:
+        order = dict((c, getattr(row, c)) for c in row._fields)
+        order['desc'] = order_status[str(row.state)]
+        order_product_rows = LrOrderProduct.query.filter_by(order_id=row.id).all()
+        order_product_photo_x_list = []
+        order_product_pid_list = []
+        order_product_name_list = []
+        order_product_price_list = []
+        for val in order_product_rows:
+            order_product_photo_x_list.append(val.photo_x)
+            order_product_pid_list.append(val.pid)
+            order_product_name_list.append(val.name)
+            order_product_price_list.append(val.price)
+        order['photo_x'] = order_product_photo_x_list
+        order['pid'] = order_product_pid_list
+        order['name'] = order_product_name_list
+        order['price_yh'] = order_product_price_list
+        order['pro_count'] = len(order_product_pid_list)
+        order_list.append(order)
+    return jsonify({'status':1, 'ord':order_list, 'eachpage':eachpage})
+
+
+@api.route("/Order/order_details", methods=['GET', 'POST'])
+def order_order_details():
+    order_id = request.form['order_id']
+    order_info = LrOrder.query.filter_by(id=order_id, status=0)\
+        .with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.shop_id, LrOrder.state, LrOrder.addtime, LrOrder.price,
+                       LrOrder.type, LrOrder.post, LrOrder.tel, LrOrder.receiver, LrOrder.address_xq, LrOrder.remark).first()
+    if not order_info:
+        jsonify({'status': 0, 'err': '订单信息错误.'})
+    order_status = {'0': '已取消', '10': '待付款', '20': '待发货', '30': '待收货', '40': '待评价', '50': '交易完成', '51': '交易关闭'}
+    pay_type = {'cash': '现金支付', 'alipay':'支付宝', 'weixin':'微信支付'}
+    order_info_dict = dict((c, getattr(order_info, c)) for c in order_info._fields)
+    shop = LrShangchang.query.filter_by(id=order_info.shop_id).first()
+    order_info_dict['shop_name'] = shop.name
+    order_info_dict['order_status'] = order_status[str(order_info.state)]
+    order_info_dict['pay_type'] = pay_type[order_info.type]
+    order_info_dict['addtime'] = datetime.fromtimestamp(order_info.addtime).strftime("%Y-%m-%d %H:%M:%S")
+    order_info_dict['yunfei'] = 0
+    if order_info.post:
+        order_info_dict['yunfei'] = LrPost.query.filter_by(id=order_info.post).first().price
+    pro_rows = LrOrderProduct.query.filter_by(order_id=order_info.id).all()
+    pro_list = []
+    columns = LrOrderProduct.__table__.columns.keys()
+    for row in pro_rows:
+        pro_list.append(dict((c, getattr(row, c)) for c in columns))
+    return jsonify({'status': 1, 'pro': pro_list, 'ord': order_info_dict})
+
+
+@api.route("/Order/orders_edit", methods=['GET', 'POST'])
+def order_orders_edit():
+    order_id = request.form['id']
+    type = request.form['type']
+    order = LrOrder.query.filter_by(id=order_id, status=0).first()
+    if not order or not type:
+        return jsonify({'status': 0, 'err': '订单信息错误.'})
+    if type == 'cancel':
+        order.state = 0
+    elif type == 'receive':
+        order.state = 40
+    elif type == 'refund':
+        order.back = 1
+        order.back_remark = request.form['back_remark']
+    try:
+        db.session.commit()
+        return jsonify({'status': 1})
+    except Exception as e:
+        return jsonify({'status': 0, 'err': '操作失败.'})
+
+
+@api.route("/Wxpay/wxpay", methods=['GET', 'POST'])
+def wxpay_wxpay():
+    pay_sn = request.form['order_sn']
+    if not pay_sn:
+        return jsonify({'status': 0, 'err': '支付信息错误!'})
+    order_info = LrOrder.query.filter_by(order_sn=pay_sn).first()
+    if not order_info:
+        return jsonify({'status': 0, 'err': '没有找到支付订单!'})
+    if order_info.state != 10:
+        return jsonify({'status': 0, 'err': '订单状态异常!'})
+    user = LrUser.query.filter_by(id=order_info.uid).first()
+    if not user:
+        return jsonify({'status': 0, 'err': '用户状态异常!'})
+    openId = user.openid
+
+    # $tools = new \JsApiPay();
+    # # 统一下单
+    # $input = new \WxPayUnifiedOrder();
+    # $input->SetBody("信真小铺商品购买_".trim($order_info['order_sn']));
+    # $input->SetAttach("信真小铺商品购买_".trim($order_info['order_sn']));
+    # $input->SetOut_trade_no($pay_sn);
+    # $input->SetTotal_fee(floatval($order_info['amount'])*100);
+    # $input->SetTime_start(date("YmdHis"));
+    # $input->SetTime_expire(date("YmdHis", time() + 3600));
+    # $input->SetGoods_tag("信真小铺商品购买_".trim($order_info['order_sn']));
+    # $input->SetNotify_url('https://mini.laohuzx.com/index.php/Api/Wxpay/notify');
+    # $input->SetTrade_type("JSAPI");
+    # $input->SetOpenid($openId);
+    # $order = \WxPayApi::unifiedOrder($input);
+    arr = {}
+    arr['appId'] = ''
+    arr['nonceStr'] = ''
+    arr['package'] = ''
+    arr['signType'] = "MD5"
+    arr['timeStamp'] = ''
+    arr['paySign'] = ''
+    return jsonify({'status': 1, 'arr': arr})
+
+
+@api.route("/Search/index", methods=['GET', 'POST'])
+def search_index():
+    uid = request.form.get('uid', type=int, default=None)
+    remen_rows = LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum'))\
+        .group_by(LrSearchRecord.keyword).order_by(desc('sum')).all()
+    history_rows = LrSearchRecord.query.filter_by(uid=uid).order_by(LrSearchRecord.addtime.desc()).limit(20)
+    remen_list = []
+    history_list = []
+    columns = LrSearchRecord.__table__.columns.keys()
+    for row in remen_rows:
+        remen_list.append(dict((c, getattr(row, c)) for c in row._fields))
+    for row in history_rows:
+        history_list.append(dict((c, getattr(row, c)) for c in columns))
+    return jsonify({'remen':remen_list, 'history':history_list})
+
+
+@api.route("/Search/searches", methods=['GET', 'POST'])
+def search_searches():
+    uid = request.form.get('uid', type=int, default=None)
+    #keyword = request.form.get('keyword', type=str, default=None) #无法获取中文参数
+    keyword = request.form['keyword']
+    if not keyword:
+        return jsonify({'status': 0, 'err': '请输入搜索内容!'})
+    if uid:
+        check_row = LrSearchRecord.query.filter_by(uid=uid, keyword=keyword).first()
+        if check_row:
+            check_row.num = check_row.num + 1
+            db.session.commit()
+        else:
+            new_row = LrSearchRecord(uid=uid,
+                                     keyword=keyword,
+                                     addtime=int(time.time()))
+            db.session.add(new_row)
+            db.session.commit()
+    page = request.form.get('page', type=int, default=0)
+    prorows = LrProduct.query.filter_by(status=0,pro_type=1,is_down=0).filter(LrProduct.name.ilike('%'+keyword+'%'))\
+        .order_by(LrProduct.addtime.desc()).with_entities(LrProduct.id,LrProduct.name,LrProduct.photo_x,
+                                                          LrProduct.shiyong,LrProduct.price,LrProduct.price_yh).all()
+    prolist = []
+    for row in prorows:
+        prolist.append(dict((c, getattr(row, c)) for c in row._fields))
+
+    page2 = request.form.get('page2', type=int, default=0)
+
+    storerows = LrShangchang.query.filter_by(status=1).filter(LrShangchang.name.ilike('%' + keyword + '%')) \
+        .order_by(LrShangchang.sort.desc(), LrShangchang.type.desc())\
+        .with_entities(LrShangchang.id, LrShangchang.name, LrShangchang.uname,
+                       LrShangchang.logo, LrShangchang.tel, LrShangchang.sheng,
+                       LrShangchang.city, LrShangchang.quyu).offset(page2).limit(6).all()
+    store_list = []
+    for row in storerows:
+        row_dict = dict((c, getattr(row, c)) for c in row._fields)
+        row_dict['sheng'] = LrChinaCity.query.filter_by(id=row_dict['sheng']).first().name
+        row_dict['city'] = LrChinaCity.query.filter_by(id=row_dict['city']).first().name
+        row_dict['quyu'] = LrChinaCity.query.filter_by(id=row_dict['quyu']).first().name
+        pro_rows = LrProduct.query.filter_by(status=0, is_down=0, shop_id=row.id).with_entities(LrProduct.id,LrProduct.photo_x,LrProduct.price_yh).limit(4).all()
+        pro_list = []
+        for row in pro_rows:
+            pro_list.append(dict((c, getattr(row, c)) for c in row._fields))
+        row_dict['pro_list'] = pro_list
+        store_list.append(row_dict)
+    return jsonify({'status':1, 'pro': prolist, 'shop': store_list})
 
 
 @api.route("/getimage/<path:image_path>")
@@ -575,3 +919,11 @@ def show_image(image_path):
 def build_order_no():
     random_str = '{0:%Y%m%d%H%M%S%f}'.format(datetime.now()) + ''.join([str(random.randint(1, 10)) for i in range(5)])
     return hashlib.md5(random_str.encode('utf-8')).hexdigest()[8:-8]
+
+
+def check_cart(pid):
+    check_info = LrProduct.query.filter_by(id=pid, status=0, is_down=0).first()
+    if not check_info:
+        return {'status': 0, 'err':'商品不存在或已下架.'}
+    else:
+        return {'status': 1}

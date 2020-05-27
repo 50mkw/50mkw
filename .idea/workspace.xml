@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/app/api/views.py" line="270" />
+    <bookmark url="file://$PROJECT_DIR$/app/api/views.py" line="395" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43709fdd-1056-4c91-a86b-959823b6eda7" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/app/com/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/com/wxpay/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/com/wxpay/wzhifuSDK.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/model/onlinestore.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/model/onlinestore.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -14,27 +19,16 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/50mkw$50mkw.coverage" NAME="50mkw Coverage Results" MODIFIED="1590246343665" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/50mkw$wzhifuSDK.coverage" NAME="wzhifuSDK Coverage Results" MODIFIED="1590492923614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/app/com/wxpay" />
+    <SUITE FILE_PATH="coverage/50mkw$50mkw.coverage" NAME="50mkw Coverage Results" MODIFIED="1590588311531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/home/views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="23" column="27" selection-start-line="23" selection-start-column="27" selection-end-line="23" selection-end-column="27" />
-              <folding>
-                <element signature="e#24#42#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/api/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="427">
-              <caret line="563" column="17" lean-forward="true" selection-start-line="563" selection-start-column="17" selection-end-line="563" selection-end-column="17" />
+            <state relative-caret-position="299">
+              <caret line="867" column="19" lean-forward="true" selection-start-line="867" selection-start-column="19" selection-end-line="867" selection-end-column="19" />
               <folding>
                 <element signature="e#24#41#0" expanded="true" />
               </folding>
@@ -45,8 +39,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask/app.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="337">
+            <state relative-caret-position="569">
               <caret line="2463" selection-start-line="2463" selection-end-line="2463" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/api/__init__.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="76">
+              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://C:/Program Files/Python37/Lib/http/server.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="425" selection-start-line="425" selection-end-line="425" />
             </state>
           </provider>
         </entry>
@@ -63,17 +75,35 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/werkzeug/serving.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5814">
-              <caret line="322" selection-start-line="322" selection-end-line="322" />
+            <state relative-caret-position="246">
+              <caret line="344" selection-start-line="344" selection-end-line="344" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/__init__.py">
+        <entry file="file://C:/Program Files/Python37/Lib/socketserver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="31" column="25" lean-forward="true" selection-start-line="31" selection-start-column="25" selection-end-line="31" selection-end-column="25" />
+            <state relative-caret-position="246">
+              <caret line="649" selection-start-line="649" selection-end-line="649" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://C:/Program Files/Python37/Lib/threading.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="626">
+              <caret line="889" column="26" lean-forward="true" selection-start-line="889" selection-start-column="26" selection-end-line="889" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/sqlalchemy/orm/attributes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="254">
+              <caret line="279" selection-start-line="279" selection-end-line="279" />
             </state>
           </provider>
         </entry>
@@ -90,33 +120,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>REDIS_URL</find>
-      <find>LrUser</find>
-      <find>user</find>
-      <find>_del</find>
-      <find>status = Column(</find>
-      <find>guangg</find>
-      <find>img_arr</find>
-      <find>$b</find>
-      <find>catlist</find>
-      <find>len</find>
-      <find>lr_a</find>
-      <find>order_by</find>
-      <find>split</find>
+      <find>quote</find>
+      <find>urlencode</find>
+      <find>urlparse</find>
       <find>request</find>
-      <find>column</find>
-      <find>order</find>
-      <find>add</find>
-      <find>cart_id</find>
-      <find>payment</find>
-      <find>commit()</find>
-      <find>下单</find>
-      <find>yunfei</find>
+      <find>OrderQuery</find>
+      <find>Refund</find>
+      <find>back</find>
       <find>datetime</find>
-      <find>shop_id=shop[0].shop_id</find>
-      <find>filter</find>
+      <find>unifiedOrder</find>
+      <find>column</find>
+      <find>shop</find>
+      <find>session</find>
+      <find>Shopp</find>
+      <find>delete</find>
+      <find>query.filter(</find>
+      <find>db.session.delete</find>
+      <find>address/det</find>
+      <find>Order/</find>
+      <find>Product/</find>
       <find>filter(</find>
-      <find>filter(No</find>
+      <find>product/l</find>
+      <find>order_by</find>
+      <find>request.form.get</find>
+      <find>limit(</find>
+      <find>Column</find>
+      <find>like</find>
+      <find>with_enth</find>
+      <find>with_en</find>
+      <find>append</find>
+      <find>off</find>
     </findStrings>
     <replaceStrings>
       <replace>status = Column(</replace>
@@ -142,6 +175,7 @@
         <option value="$PROJECT_DIR$/app/api/__init__.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/app/__init__.py" />
+        <option value="$PROJECT_DIR$/app/com/wxpay/wzhifuSDK.py" />
         <option value="$PROJECT_DIR$/app/model/onlinestore.py" />
         <option value="$PROJECT_DIR$/app/api/views.py" />
       </list>
@@ -170,6 +204,19 @@
               <item name="50mkw" type="b2602c69:ProjectViewProjectNode" />
               <item name="50mkw" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="50mkw" type="b2602c69:ProjectViewProjectNode" />
+              <item name="50mkw" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="50mkw" type="b2602c69:ProjectViewProjectNode" />
+              <item name="50mkw" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="wxpay" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="50mkw" type="b2602c69:ProjectViewProjectNode" />
@@ -227,7 +274,29 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Flask server.50mkw">
+    <configuration name="wzhifuSDK" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="50mkw" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/app/com/wxpay" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app/com/wxpay/wzhifuSDK.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="50mkw" type="Python.FlaskServer" factoryName="Flask server">
       <module name="50mkw" />
       <option name="target" value="$PROJECT_DIR$/50mkw.py" />
@@ -243,6 +312,11 @@
       <option name="launchJavascriptDebuger" value="false" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.wzhifuSDK" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -258,12 +332,12 @@
       <workItem from="1589624886181" duration="397000" />
       <workItem from="1589625310322" duration="23219000" />
       <workItem from="1589702194409" duration="69417000" />
-      <workItem from="1590202635931" duration="27865000" />
+      <workItem from="1590202635931" duration="75125000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="122584000" />
+    <option name="totallyTimeSpent" value="169844000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -278,13 +352,13 @@
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1963434" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1963434" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32936507" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.3822153" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32917318" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3822153" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3293745" />
@@ -292,7 +366,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32839313" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5012029" side_tool="true" weight="0.33412322" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49879712" weight="0.31903276" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.49879712" visible="true" weight="0.31903276" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.32857144" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -324,112 +398,127 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>119</line>
+          <line>121</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>139</line>
+          <line>141</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>29</line>
+          <line>31</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>206</line>
+          <line>331</line>
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>410</line>
+          <line>559</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>386</line>
+          <line>535</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>387</line>
+          <line>536</line>
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/app/api/views.py</url>
-          <line>544</line>
+          <line>693</line>
           <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>809</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>265</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>511</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>788</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>190</line>
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/api/views.py</url>
+          <line>849</line>
+          <option name="timeStamp" value="45" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Python.FlaskServer">
-        <watch expression="LrUser.query.filter_by(id=11).order_by(LrUser.addtime).first()" language="Python" />
-        <watch expression="len(LrCategory.query.all())" language="Python" />
-        <watch expression="LrCategory.query.all()" language="Python" />
-        <watch expression="list(img)" language="Python" />
-        <watch expression="list(list(img))" language="Python" />
-        <watch expression="list(img)" language="Python" />
-        <watch expression="product['img_arr']" language="Python" />
-        <watch expression="LrUser.query.all()[0]._fields" language="Python" />
-        <watch expression="LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid).outerjoin(LrShangchang, LrShangchang.id == LrShoppingChar.shop_id).with_entities(LrProduct.num,LrShoppingChar.id,LrShoppingChar.pid,LrShangchang.name,LrProduct.name,LrProduct.shop_id,LrProduct.photo_x,LrProduct.price_yh,LrShoppingChar.num,LrShoppingChar.buff,LrShoppingChar.price).first()" language="Python" />
-        <watch expression="list(cart)" language="Python" />
-        <watch expression="if int(vid)" language="Python" />
-        <watch expression="cart_id_list" language="Python" />
+        <watch expression="LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by(desc('sum')).all()" language="Python" />
+        <watch expression="LrOrder.query.with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.pay_sn, LrOrder.state, LrOrder.price, LrOrder.type, LrOrder.product_num).offset(0).limit(7)" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
       <expression>
-        <expression-string>cart_id_list</expression-string>
+        <expression-string>LrOrder.query.with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.pay_sn, LrOrder.state, LrOrder.price, LrOrder.type, LrOrder.product_num).offset(0).limit(7)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>if int(vid)</expression-string>
+        <expression-string>LrOrder.query.with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.pay_sn, LrOrder.state, LrOrder.price, LrOrder.type, LrOrder.product_num).offset(pages).limit(7)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>list(cart)</expression-string>
+        <expression-string>LrOrder.query.filter_by(status=status, back=str(back), state=state, uid=uid).with_entities(LrOrder.id, LrOrder.order_sn, LrOrder.pay_sn, LrOrder.state, LrOrder.price, LrOrder.type, LrOrder.product_num).offset(pages).limit(7)</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid).outerjoin(LrShangchang, LrShangchang.id == LrShoppingChar.shop_id).with_entities(LrProduct.num,LrShoppingChar.id,LrShoppingChar.pid,LrShangchang.name,LrProduct.name,LrProduct.shop_id,LrProduct.photo_x,LrProduct.price_yh,LrShoppingChar.num,LrShoppingChar.buff,LrShoppingChar.price).first()</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by(desc('sum')).all()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid).outerjoin(LrShangchang, LrShangchang.id == LrShoppingChar.shop_id).with_entities(LrProduct.num,LrShoppingChar.id,LrShoppingChar.pid,LrShangchang.name,LrProduct.name,LrProduct.shop_id,LrProduct.photo_x,LrProduct.price_yh,LrShoppingChar.num,LrShoppingChar.buff,LrShoppingChar.price)</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by('num desc').all()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid).with_entities(LrProduct.num,LrShoppingChar.id,LrShoppingChar.pid,LrShangchang.name,LrProduct.name,LrProduct.shop_id,LrProduct.photo_x,LrProduct.price_yh,LrShoppingChar.num,LrShoppingChar.buff,LrShoppingChar.price)</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by(text('2 desc')).all()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid).with_entities(LrProduct.num,                            LrShoppingChar.id,                            LrShoppingChar.pid,                            LrShangchang.name,                            LrProduct.name,                            LrProduct.shop_id,                            LrProduct.photo_x,                            LrProduct.price_yh,                            LrShoppingChar.num,                            LrShoppingChar.buff,                            LrShoppingChar.price)</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by('2 desc').all()</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.outerjoin(LrProduct, LrProduct.id==LrShoppingChar.pid)</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by('2 desc')</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>LrShoppingChar.query.join(LrProduct, LrProduct.id==LrShoppingChar.pid, 'Left')</expression-string>
-        <language-id>Python</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>LrShoppingChar.query.join(LrProduct, LrProduct.id==LrShoppingChar.pid, left)</expression-string>
+        <expression-string>LrSearchRecord.query.with_entities(LrSearchRecord.keyword,func.sum(LrSearchRecord.num).label('sum')).group_by(LrSearchRecord.keyword).order_by('sum')</expression-string>
         <language-id>Python</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
@@ -522,31 +611,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/api/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask_sqlalchemy/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Program Files/Python37/Lib/threading.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="869" selection-start-line="869" selection-end-line="869" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Program Files/Python37/Lib/socketserver.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="649" selection-start-line="649" selection-end-line="649" />
         </state>
       </provider>
     </entry>
@@ -557,17 +625,36 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask/app.py">
+    <entry file="file://C:/Program Files/Python37/Lib/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="337">
-          <caret line="2463" selection-start-line="2463" selection-end-line="2463" />
+        <state relative-caret-position="463">
+          <caret line="320" selection-start-line="320" selection-end-line="320" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask/cli.py">
+    <entry file="file://$PROJECT_DIR$/app/com/wxpay/wzhifuSDK.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="336" selection-start-line="336" selection-end-line="336" />
+        <state relative-caret-position="679">
+          <caret line="612" selection-start-line="612" selection-end-line="612" />
+          <folding>
+            <element signature="e#917#928#0" expanded="true" />
+            <element signature="e#2269#2839#0" />
+            <element signature="e#2874#3240#0" />
+            <element signature="e#3273#4600#0" />
+            <element signature="e#4636#4821#0" />
+            <element signature="e#4859#6867#0" />
+            <element signature="e#6908#9006#0" />
+            <element signature="e#11702#12494#0" />
+            <element signature="e#12537#13527#0" />
+            <element signature="e#13575#14557#0" />
+            <element signature="e#14606#15514#0" />
+            <element signature="e#15559#16453#0" />
+            <element signature="e#16501#17513#0" />
+            <element signature="e#17556#17568#0" />
+            <element signature="e#17615#18244#0" />
+            <element signature="e#18290#19313#0" />
+            <element signature="e#19332#19464#0" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -581,10 +668,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/sqlalchemy/orm/attributes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="279" selection-start-line="279" selection-end-line="279" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/model/onlinestore.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1463">
-          <caret line="1" column="15" selection-start-line="1" selection-start-column="5" selection-end-line="1" selection-end-column="15" />
+        <state relative-caret-position="-2318">
+          <caret line="19" column="42" lean-forward="true" selection-start-line="19" selection-start-column="42" selection-end-line="19" selection-end-column="42" />
+          <folding>
+            <element signature="e#16#115#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/api/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask/cli.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="336" selection-start-line="336" selection-end-line="336" />
         </state>
       </provider>
     </entry>
@@ -597,15 +708,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/werkzeug/serving.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5814">
-          <caret line="322" selection-start-line="322" selection-end-line="322" />
+        <state relative-caret-position="246">
+          <caret line="344" selection-start-line="344" selection-end-line="344" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/Python37/Lib/socketserver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="649" selection-start-line="649" selection-end-line="649" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/Python37/Lib/threading.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="626">
+          <caret line="889" column="26" lean-forward="true" selection-start-line="889" selection-start-column="26" selection-end-line="889" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/Lib/site-packages/flask/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="569">
+          <caret line="2463" selection-start-line="2463" selection-end-line="2463" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/api/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="563" column="17" lean-forward="true" selection-start-line="563" selection-start-column="17" selection-end-line="563" selection-end-column="17" />
+        <state relative-caret-position="299">
+          <caret line="867" column="19" lean-forward="true" selection-start-line="867" selection-start-column="19" selection-end-line="867" selection-end-column="19" />
           <folding>
             <element signature="e#24#41#0" expanded="true" />
           </folding>

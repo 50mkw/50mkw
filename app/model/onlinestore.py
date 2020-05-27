@@ -16,7 +16,7 @@ class LrAddress(db.Model):
     __bind_key__ = '50mkw'
 
     id = Column(INTEGER(11), primary_key=True, unique=True, comment='地址id')
-    name = Column(String(10), nullable=False, comment='收货人')
+    name = Column(String(64), nullable=False, comment='收货人')
     tel = Column(CHAR(15), nullable=False, comment='联系方式')
     sheng = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='省id')
     city = Column(INTEGER(11), nullable=False, server_default=text("'0'"), comment='市id')
