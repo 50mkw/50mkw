@@ -3,8 +3,7 @@ from . import api
 from flask import request, jsonify, make_response, Response
 from app.model.onlinestore import LrUser, LrGuanggao, LrCategory, LrProduct, LrBrand, LrAttribute, LrGuige, \
     LrShoppingChar, LrOrder, LrAddress, LrPost, LrShangchang, LrChinaCity, LrOrderProduct, LrUserVoucher, \
-    LrSearchRecord
-from datatables import ColumnDT
+    LrSearchRecord, LrVoucher
 from sqlalchemy import func, desc
 import requests
 from datetime import datetime
@@ -338,6 +337,47 @@ def user_getorder():
     order['finish_num'] = len(LrOrder.query.filter(LrOrder.uid==uid, LrOrder.state>30, LrOrder.status==0, LrOrder.back==0).all())
     order['refund_num'] = len(LrOrder.query.filter(LrOrder.back>0).all())
     return jsonify({'status': 1, 'orderInfo': order})
+
+
+@api.route("/User/voucher", methods=['GET', 'POST'])
+def user_voucher():
+    uid = request.form['uid']
+    if not uid:
+        return jsonify({'status':0, 'err':'非法操作.'})
+    vou_rows = LrUserVoucher.query.filter(LrUserVoucher.uid==uid, LrUserVoucher.status!=2).all()
+    vou_list = []
+    nouses = []
+    offdates = []
+    columns = LrUserVoucher.__table__.columns.keys()
+    for row in vou_rows:
+        vou_info = LrVoucher.query.filter_by(id=row.vid).first()
+        vou_dict = dict((c, getattr(row, c)) for c in columns)
+        if vou_info.status == 1 or vou_info.end_time < int(time.time()):
+            vou_dict['start_time'] = datetime.fromtimestamp(row.start_time).strftime("%Y.%m.%d")
+            vou_dict['end_time'] = datetime.fromtimestamp(row.end_time).strftime("%Y.%m.%d")
+            offdates.append(vou_dict)
+        elif vou_info.end_time > int(time.time()):
+            vou_dict['title'] = vou_info.title
+            if not vou_info.proid or vou_info.proid == 'all':
+                vou_dict['desc'] = '店内通用'
+            else:
+                vou_dict['desc'] = '限定商品'
+                prodidlist = []
+                for tmp in filter(None, vou_info.proid.split(',')):
+                    prodidlist.append(tmp)
+                if prodidlist:
+                    vou_dict['proid'] = int(prodidlist[0])
+            vou_dict['start_time'] = datetime.fromtimestamp(row.start_time).strftime("%Y.%m.%d")
+            vou_dict['end_time'] = datetime.fromtimestamp(row.end_time).strftime("%Y.%m.%d")
+            nouses.append(vou_dict)
+    vou_rows = LrUserVoucher.query.filter(LrUserVoucher.uid == uid, LrUserVoucher.status == 2).all()
+    useds = []
+    for row in vou_rows:
+        vou_dict = dict((c, getattr(row, c)) for c in columns)
+        vou_dict['start_time'] = datetime.fromtimestamp(row.start_time).strftime("%Y.%m.%d")
+        vou_dict['end_time'] = datetime.fromtimestamp(row.end_time).strftime("%Y.%m.%d")
+        useds.append(vou_dict)
+    return jsonify({'status': 1, 'offdates': offdates, 'nouses': nouses, 'useds': useds})
 
 
 @api.route("/Payment/buy_cart", methods=['GET', 'POST'])
@@ -906,6 +946,69 @@ def search_searches():
         row_dict['pro_list'] = pro_list
         store_list.append(row_dict)
     return jsonify({'status':1, 'pro': prolist, 'shop': store_list})
+
+
+@api.route("/Voucher/index", methods=['GET', 'POST'])
+def voucher_index():
+    vou_rows = LrVoucher.query.filter(LrVoucher.status==0,
+                                 LrVoucher.start_time<int(time.time()),
+                                 LrVoucher.end_time>int(time.time())).order_by(LrVoucher.addtime.desc()).all()
+    vou_list = []
+    columns = LrVoucher.__table__.columns.keys()
+    for row in vou_rows:
+        row_dict = dict((c, getattr(row, c)) for c in columns)
+        row_dict['start_time'] = datetime.fromtimestamp(row.start_time).strftime("%Y.%m.%d")
+        row_dict['end_time'] = datetime.fromtimestamp(row.end_time).strftime("%Y.%m.%d")
+        if not row.proid or row.proid == 'all':
+            row_dict['desc'] = '店内通用'
+        else:
+            row_dict['desc'] = '限定商品'
+        vou_list.append(row_dict)
+    return jsonify({'status': 1, 'vou': vou_list})
+
+
+@api.route("/Voucher/get_voucher", methods=['GET', 'POST'])
+def voucher_get_voucher():
+    vid = request.form.get('vid', type=int, default=None)
+    uid = request.form.get('uid', type=int, default=None)
+    check_user = LrUser.query.filter_by(id=uid, status=0).first()
+    if not check_user:
+        return jsonify({'status': 0, 'err': '登录状态异常!'})
+    check_vou = LrVoucher.query.filter_by(id=vid, status=0).first()
+    if not check_vou:
+        return jsonify({'status': 0, 'err': '优惠券信息错误!'})
+    check = LrUserVoucher.query.filter_by(uid=uid, vid=vid).first()
+    if check:
+        return jsonify({'status': 0, 'err': '您已经领取过了!'})
+    if check_vou.point != 0 and check_vou.point > check_user.jifen:
+        return jsonify({'status': 0, 'err': '积分余额不足!'})
+    if check_vou.start_time > int(time.time()):
+        return jsonify({'status': 0, 'err': '优惠券还未生效!'})
+    if check_vou.end_time < int(time.time()):
+        return jsonify({'status': 0, 'err': '优惠券已失效!'})
+    if check_vou.count < check_vou.receive_num:
+        return jsonify({'status': 0, 'err': '优惠券已被领取完了!'})
+    voucher = LrUserVoucher(
+        uid=uid,
+        vid=vid,
+        shop_id=check_vou.shop_id,
+        full_money=check_vou.full_money,
+        amount=check_vou.amount,
+        start_time=check_vou.start_time,
+        end_time=check_vou.end_time,
+        addtime=int(time.time())
+    )
+    db.session.add(voucher)
+    db.session.commit()
+    if voucher.id:
+        if check_vou.point != 0:
+            check_user.jifen = check_user.jifen - check_vou.point
+            db.session.commit()
+        check_vou.receive_num = check_vou.receive_num + 1
+        db.session.commit()
+        return jsonify({'status': 1})
+    else:
+        return jsonify({'status': 0, 'err':'领取失败'})
 
 
 @api.route("/getimage/<path:image_path>")
