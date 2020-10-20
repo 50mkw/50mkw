@@ -120,3 +120,14 @@ server{
 
 如果你只有自己的域名而没有ssl证书，可以去申请免费的ssl证书或者参考此网址配置（https://certbot.eff.org/#ubuntuxenial-nginx）。
 如果你没有自己的域名甚至没有自己的服务器，请出门右转阿里云或左转腾讯云自行购买。
+
+# 调试
+curl -d "order_sn=470ba5588d309595" -X POST wxmin.50mkw.com/api/Wxpay/wxpay
+
+注意一定要用双引号，不然会报下面的错误
+```angular2
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<title>400 Bad Request</title>
+<h1>Bad Request</h1>
+<p>The browser (or proxy) sent a request that this server could not understand.</p>
+```

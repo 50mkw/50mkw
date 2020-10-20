@@ -9,6 +9,7 @@ import requests
 from datetime import datetime
 import time, random, hashlib
 from app import db, basedir
+from app.com.wxpay.wzhifuSDK import UnifiedOrder_pub
 
 
 @api.route('/')
@@ -859,7 +860,15 @@ def wxpay_wxpay():
     if not user:
         return jsonify({'status': 0, 'err': '用户状态异常!'})
     openId = user.openid
-
+    unipay = UnifiedOrder_pub()
+    unipay.setParameter('out_trade_no','111')
+    unipay.setParameter('body','111')
+    unipay.setParameter('total_fee','111')
+    unipay.setParameter('notify_url','111')
+    unipay.setParameter('trade_type', 'JSAPI')
+    unipay.setParameter('openid',openId)
+    unipay.createXml()
+    res = unipay.getResult()
     # $tools = new \JsApiPay();
     # # 统一下单
     # $input = new \WxPayUnifiedOrder();

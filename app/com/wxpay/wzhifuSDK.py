@@ -58,13 +58,13 @@ class WxPayConf_pub(object):
 
     # =======【基本信息设置】=====================================
     # 微信公众号身份的唯一标识。审核通过后，在微信发送的邮件中查看
-    APPID = "wx8888888888888888"
+    APPID = "wxc04c30b11575837f"
     # JSAPI接口中获取openid，审核后在公众平台开启开发模式后可查看
-    APPSECRET = "48888888888888888888888888888887"
+    APPSECRET = "f30c187daaebc99b6ed2ca75a5c8921a"
     # 受理商ID，身份标识
-    MCHID = "18888887"
+    MCHID = "1603384544"
     # 商户支付密钥Key。审核通过后，在微信发送的邮件中查看
-    KEY = "48888888888888888888888888888886"
+    KEY = "858495kfjhhdl94ifndo382h34854j56"
 
     # =======【异步通知url设置】===================================
     # 异步通知url，商户根据实际开发过程设定
@@ -111,7 +111,7 @@ class UrllibClient(object):
 
     def postXml(self, xml, url, second=30):
         """不使用证书"""
-        data = urllib2.urlopen(url, xml, timeout=second).read()
+        data = urllib2.urlopen(url, xml.encode("utf-8"), timeout=second).read()
         return data
 
     def postXmlSSL(self, xml, url, second=30):
@@ -201,7 +201,10 @@ class Common_util_pub(object):
         # 签名步骤二：在string后加入KEY
         String = "{0}&key={1}".format(String, WxPayConf_pub.KEY)
         # 签名步骤三：MD5加密
-        String = hashlib.md5(String).hexdigest()
+        hash = hashlib.md5()
+        hash.update(String.encode('utf-8'))
+        #String = hashlib.md5(String).hexdigest()
+        String = hash.hexdigest()
         # 签名步骤四：所有字符转为大写
         result_ = String.upper()
         return result_
@@ -209,7 +212,7 @@ class Common_util_pub(object):
     def arrayToXml(self, arr):
         """array转xml"""
         xml = ["<xml>"]
-        for k, v in arr.iteritems():
+        for k, v in arr.items():
             if v.isdigit():
                 xml.append("<{0}>{1}</{0}>".format(k, v))
             else:
