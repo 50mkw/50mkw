@@ -5,7 +5,7 @@ gunicorn
 importlib-metadata==1.6.0
 inflect
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 PyMySQL==0.9.3
 python-dateutil==2.8.1
